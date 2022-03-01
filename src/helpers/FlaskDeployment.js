@@ -30,7 +30,7 @@ if (gitUrl && port && gitUrl.includes("https://") && gitUrl.includes(".git")) {
                     shell.exec(`cd ${appDirectory} && ${appDirectory}/venv/Scripts/pip3 install -r requirements.txt`)
                     console.log("Dependencies Installed")
                     try {
-                        fileContent = fs.readFileSync(`${appDirectory}/entrypoint`, "utf8").split(" ")
+                        let fileContent = fs.readFileSync(`${appDirectory}/entrypoint`, "utf8").split(" ")
                         try {
                             let arg1 = fileContent[0]
                             arg1 = `${appDirectory}/venv/Scripts/${arg1}`

@@ -1,10 +1,8 @@
 const shell = require("shelljs");
-const express = require("express");
-const router = express.Router();
 const fs = require("fs");
 const nodemailer = require("nodemailer")
 
-const ipaddress = require("../json/IpAddress.json");
+const ipaddress = require("../../data/ipAddress.json");
 
 const send_mail = (imei, receiver) => {
     var transporter = nodemailer.createTransport({
@@ -18,8 +16,8 @@ const send_mail = (imei, receiver) => {
     var mailOptions = {
         from: "Opencloud",
         to: receiver,
-        subject: "Sending Email using Node.js",
-        text: "That was easy!",
+        subject: "OpenCloud VPN Certificate",
+        text: "Hey.. This is your VPN cerfiticate",
         attachments: [
             {
                 filename: `${imei}.ovpn`,
@@ -38,33 +36,33 @@ const send_mail = (imei, receiver) => {
 
 }
 
-router.post("/", async (req, res) => {
+const generateCertificate = async (req, res) => {
     let { imei, email } = req.body;
     if ((imei || email) != ("" || null || undefined)) {
         let command = shell.exec(`sudo bash vpn.sh ${imei}`)
         if (command.code === 0) {
             let new_ip = `10.8.0.${parseInt(ipaddress[ipaddress.length - 1].split(".")[3]) + 1}`
             ipaddress.push(new_ip);
-            fs.writeFileSync("../json/IpAddress.json", JSON.stringify(ipaddress), (err) => {
+            fs.writeFileSync("../../data/ipAddress.json", JSON.stringify(ipaddress), (err) => {
                 if (err) throw err;
             });
             shell.exec(`echo \"ifconfig-push ${new_ip} 255.255.255.0\" > /etc/openvpn/ccd/${imei}`)
             shell.exec(`openssl x509 -subject -noout -in /etc/openvpn/easy-rsa/pki/issued/${imei}.crt`)
             send_mail(imei, email)
             res.json({
-                message: "Certificate has been sent to your mail"
+                data: "Certificate has been sent to your mail"
             })
         } else {
             res.json({
                 message: "Something went wrong",
-                error: command.stderr
+                data: command.stderr.toString()
             })
         }
     } else {
         res.json({
-            message: "params missing"
+            data: "params missing"
         })
     }
-})
+}
 
-module.exports = router
+module.exports = { generateCertificate }

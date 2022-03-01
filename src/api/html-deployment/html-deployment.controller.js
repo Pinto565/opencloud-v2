@@ -1,11 +1,9 @@
 const shell = require("shelljs");
-const express = require("express");
-const router = express.Router();
-const confAdder = require("../utils/ConfAdder")
-const port = require("../utils/RandomPortUtil")
+const confAdder = require("../../helpers/confAdder");
+const path = require("path")
 
 
-router.post("/", (req, res) => {
+const htmlDeployment = async (req, res) => {
     const gitUrl = req.body.gitUrl.trim()
     const device = req.body.device.trim()
     let port = req.body.port.trim()
@@ -17,11 +15,11 @@ router.post("/", (req, res) => {
         else {
             port = "8022"
         }
-        let port = port()
-        let command = `cat ../utils/FlaskDeployment.js | ssh ${device} -p ${port} node - ${gitUrl} ${port}`
+        const filePath = path.join(__dirname, "..", "..", "helpers", "HtmlDeployment.js")
+        let command = `cat ${filePath} | ssh ${device} -p ${port} node - ${gitUrl} 8080`
         let output = shell.exec(command)
         if (!output.stderr) {
-            publicAddress = confAdder(device, port)
+            publicAddress = confAdder(device, 8080)
             shell.exec("systemctl restart haproxy")
             res.json({
                 "siteAddress": publicAddress,
@@ -41,6 +39,6 @@ router.post("/", (req, res) => {
         })
     }
 
-})
+}
 
-module.exports = router
+module.exports = { htmlDeployment }
