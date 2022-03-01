@@ -12,7 +12,7 @@ const randomString = () => {
     return result;
 }
 
-const confAdder = (device, devPort) => {
+const ConfigAdder = (device, devPort) => {
     let id = randomString()
     let publicAddress = `${id}.node.opencloud.world`
     let config = `\nbackend ${publicAddress}\n   server ${id}      ${device}:${devPort}\n`
@@ -23,4 +23,4 @@ const confAdder = (device, devPort) => {
     return publicAddress
 }
 
-module.exports = confAdder;
+module.exports = ConfigAdder;

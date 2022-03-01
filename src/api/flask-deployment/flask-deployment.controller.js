@@ -1,5 +1,5 @@
 const shell = require("shelljs");
-const confAdder = require("../../helpers/ConfigAdder");
+const ConfigAdder = require("../../helpers/ConfigAdder");
 const path = require("path")
 
 const flaskDeployment = async (req, res) => {
@@ -14,7 +14,7 @@ const flaskDeployment = async (req, res) => {
         let command = `cat ${filePath} | ssh ${device} -p ${port} node - ${gitUrl} 8080`
         let output = shell.exec(command)
         if (!output.stderr) {
-            publicAddress = confAdder(device, 8080)
+            publicAddress = ConfigAdder(device, 8080)
             shell.exec("systemctl restart haproxy")
             res.json({
                 "siteAddress": publicAddress,
